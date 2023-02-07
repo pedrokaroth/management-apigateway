@@ -38,3 +38,11 @@ functions:
           path: hello 
           method: get
           private: true
+  usage:
+    handler: index.usage
+    events:
+      - http:
+          path: /api/usage
+          method: get
+          cors: true
+          private: true
