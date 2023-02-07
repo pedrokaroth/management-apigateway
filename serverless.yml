@@ -1,0 +1,40 @@
+
+service: api-management
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  apiGateway:
+    apiKeys:
+      - free: ${file(./keys.js):free}
+      - paid: ${file(./keys.js):paid}
+    usagePlan:
+      - free:
+          quota:
+            limit: 50
+            period: DAY
+          throttle:
+            burstLimit: 10
+            rateLimit: 5
+      - paid:
+          quota:
+            limit: 1000
+            period: DAY
+          throttle:
+            burstLimit: 400
+            rateLimit: 50
+
+package:
+  excludeDevDependencies: true
+
+plugins:
+  - serverless-offline
+
+functions:
+  hello:
+    handler: index.handler
+    events:
+      - http:
+          path: hello 
+          method: get
+          private: true
