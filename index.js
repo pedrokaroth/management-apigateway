@@ -14,6 +14,37 @@ module.exports.handler = async (event) => {
 }
 
 module.exports.usage = async (event) => {
+  const { queryStringParameters } = event
+
+  if (!queryStringParameters) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        mensagem: 'Key and Plan id is required'
+      })
+    }
+  }
+
+  if (!queryStringParameters.keyId) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        mensagem: 'Key id is required'
+      })
+    }
+  }
+
+  if (!queryStringParameters.usagePlanId) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        mensagem: 'Plan id is required'
+      })
+    }
+  }
+
+  const { usagePlanId, keyId } = queryStringParameters
+
   const startUsage = moment().startOf('month')
   const usageDates = []
 
@@ -21,9 +52,6 @@ module.exports.usage = async (event) => {
     usageDates.push(startUsage.clone())
     startUsage.add(1, 'days')
   }
-
-  const usagePlanId = 'j74g9p'
-  const keyId = 'es6tziwo66'
 
   const { quota: { limit } } = await apiGateway.getUsagePlan({ usagePlanId }).promise()
 
