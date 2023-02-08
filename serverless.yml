@@ -23,7 +23,13 @@ provider:
           throttle:
             burstLimit: 400
             rateLimit: 50
-
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - apigateway:GET
+        - apigateway:POST
+      Resource: "*"
+      
 package:
   excludeDevDependencies: true
 
@@ -44,4 +50,11 @@ functions:
       - http:
           path: /api/usage
           method: get
+          cors: true
+  create:
+    handler: index.create
+    events:
+      - http:
+          path: /api/create
+          method: post
           cors: true

@@ -1,6 +1,10 @@
 const moment = require('moment')
 const Promise = require('bluebird')
 const { apiGateway } = require('./src/factories/awsFactory')
+const PLANS = {
+  paid: 'j74g9p',
+  free: 'luct62'
+}
 
 module.exports.handler = async (event) => {
   return {
@@ -79,6 +83,48 @@ module.exports.usage = async (event) => {
     statusCode: 200,
     body: JSON.stringify({
       usages
+    })
+  }
+}
+
+module.exports.create = async event => {
+  const request = JSON.parse(event.body)
+
+  if (!request.email) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        mensagem: 'Email is required'
+      })
+    }
+  }
+
+  if (!request.plan) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        mensagem: 'Plan type is required'
+      })
+    }
+  }
+
+  const { id, value } = await apiGateway.createApiKey({
+    name: request.email,
+    enabled: true
+  }).promise()
+
+  await apiGateway.createUsagePlanKey({
+    keyId: id,
+    keyType: 'API_KEY',
+    usagePlanId: PLANS[request.plan]
+  }).promise()
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify({
+      token: value,
+      id,
+      mensagem: `Use ${id} to check quota and 'x-api-key: ${value}' to make requests`
     })
   }
 }
